@@ -100,8 +100,8 @@
 
         if (value == "Fechas")
         {
-            fechaInicio = null;
-            fechaFin = null;
+            fechaInicio = DateTime.Now;
+            fechaFin = DateTime.Now;
             numeroVenta = string.Empty;
             noneNumero = "d-none";
             noneFecha = "d-block";
@@ -114,7 +114,16 @@
             noneNumero = "d-block";
             noneFecha = "d-none";
         }
+    }
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Establecer fechas por defecto al cargar la página
+        if (buscarPor == "Fechas")
+        {
+            fechaInicio = DateTime.Now;
+            fechaFin = DateTime.Now;
+        }
     }
 
     private async Task Buscar()

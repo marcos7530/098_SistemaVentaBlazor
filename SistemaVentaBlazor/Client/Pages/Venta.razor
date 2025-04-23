@@ -124,6 +124,21 @@
     {
         if(_productoSeleccionado != null && _cantidad > 0)
         {
+            // Calcular la cantidad total del producto en la venta actual
+            var cantidadTotalEnVenta = _venta.DetalleVenta
+                .Where(dv => dv.IdProducto == _productoSeleccionado.IdProducto)
+                .Sum(dv => dv.Cantidad);
+
+            // Verificar si la cantidad total excede el stock
+            if ((cantidadTotalEnVenta + _cantidad) > _productoSeleccionado.Stock)
+            {
+                await Swal.FireAsync("Error", 
+                    $"No hay suficiente stock. Stock disponible: {_productoSeleccionado.Stock}. " +
+                    $"Ya tiene {cantidadTotalEnVenta} en la venta.", 
+                    "error");
+                return;
+            }
+
             var detalleVenta = new DetalleVentaDTO()
             {
                 IdProducto = _productoSeleccionado.IdProducto,
@@ -137,8 +152,6 @@
             _productoSeleccionado = null;
             _cantidad = 0;
         }
-
-
     }
 
 
@@ -150,6 +163,12 @@
 
     private async Task RegistrarVenta()
     {
+        if (_venta.DetalleVenta == null || !_venta.DetalleVenta.Any())
+        {
+            await Swal.FireAsync("Error", "Debe agregar al menos un producto a la venta", "error");
+            return;
+        }
+
         botonDesactivado = true;
 
         _venta.Total = _venta.DetalleVenta!.Sum(p => p.Total);
@@ -173,6 +192,5 @@
             await Swal.FireAsync("Oops...", "No se pudo registrar!", "error");
         }
         botonDesactivado = false;
-
     }
 }
