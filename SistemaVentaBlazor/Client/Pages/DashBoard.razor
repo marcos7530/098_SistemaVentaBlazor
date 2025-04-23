@@ -6,6 +6,8 @@
 @using ChartJs.Blazor.Common.Axes;
 @using ChartJs.Blazor.Common.Axes.Ticks;
 @using ChartJs.Blazor.BarChart;
+@using ChartJs.Blazor.PieChart;
+@using ChartJs.Blazor.Common.Enums;
 @using ChartJs.Blazor.Util;
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-5">
@@ -42,11 +44,36 @@
                     </div>
                 </MudPaper>
             </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Valor Total Stock</MudText>
+                        <MudText Typo="Typo.h5">@dashboard.ValorTotalStock</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
             <MudItem xs="12" sm="12" md="12">
                 <MudPaper Elevation="25" Style="height:310px;">
-
                     <Chart Config="barconfig" @ref="_chart"></Chart>
+                </MudPaper>
+            </MudItem>
 
+            <MudItem xs="12" sm="12" md="12">
+                <MudPaper Elevation="25" Style="height:310px;">
+                    <Chart Config="productosConfig" @ref="_productosChart"></Chart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12">
+                <MudPaper Elevation="25" Style="height:310px;">
+                    <Chart Config="montosConfig" @ref="_montosChart"></Chart>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="12">
+                <MudPaper Elevation="25" Style="height:310px;">
+                    <Chart Config="stockConfig" @ref="_stockChart"></Chart>
                 </MudPaper>
             </MudItem>
 
@@ -60,25 +87,29 @@
 
     private BarConfig barconfig;
     private Chart _chart = null!;
-
-    //private PieConfig _config;
+    private BarConfig productosConfig;
+    private Chart _productosChart = null!;
+    private BarConfig montosConfig;
+    private Chart _montosChart = null!;
+    private PieConfig stockConfig;
+    private Chart _stockChart = null!;
 
     protected override async Task OnInitializedAsync()
     {
-
+        // Configuración del gráfico de ventas semanales
         barconfig = new BarConfig
-         {
+        {
             Options = new BarOptions
             {
-               
                 MaintainAspectRatio = false,
                 Responsive = true,
                 Title = new OptionsTitle
                 {
-                    Display = true
+                    Display = true,
+                    Text = "Ventas de la última semana"
                 },
                 Scales = new BarScales
-                 {
+                {
                     YAxes = new List<CartesianAxis>
                     {
                         new BarLinearCartesianAxis
@@ -87,38 +118,107 @@
                             MinBarLength = 0
                         }
                     }
-                 }
+                }
             }
-         };
+        };
 
-        foreach (string lb in new[] { "temp" })
-            barconfig.Data.Labels.Add(lb);
-
-        IDataset<int> dataSet = new BarDataset<int>(new[] { 1 })
+        // Configuración del gráfico de productos por categoría
+        productosConfig = new BarConfig
+        {
+            Options = new BarOptions
             {
-                BackgroundColor = ColorUtil.ColorHexString(54, 162, 235),
-                BorderColor = ColorUtil.ColorHexString(54, 162, 235),
-                BorderWidth = 1
-            };
+                MaintainAspectRatio = false,
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Productos más vendidos por categoría"
+                },
+                Scales = new BarScales
+                {
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new BarLinearCartesianAxis
+                        {
+                            Stacked = false,
+                            MinBarLength = 0
+                        }
+                    }
+                }
+            }
+        };
 
-        barconfig.Data.Datasets.Add(dataSet);
+        // Configuración del gráfico de montos por categoría
+        montosConfig = new BarConfig
+        {
+            Options = new BarOptions
+            {
+                MaintainAspectRatio = false,
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Montos vendidos por categoría"
+                },
+                Scales = new BarScales
+                {
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new BarLinearCartesianAxis
+                        {
+                            Stacked = false,
+                            MinBarLength = 0
+                        }
+                    }
+                }
+            }
+        };
 
+        // Configuración del gráfico de valor del stock por categoría (ahora es un gráfico de torta)
+        stockConfig = new PieConfig
+        {
+            Options = new PieOptions
+            {
+                MaintainAspectRatio = false,
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Valor total del stock por categoría"
+                }
+            }
+        };
 
         var response = await _dashboardServicio.Resumen();
         if (response.status)
         {
             dashboard = (DashBoardDTO)response.value!;
+            
+            // Configurar gráfico de ventas semanales
             var labels = dashboard.VentasUltimaSemana.Select(v => v.Fecha).ToArray();
             var values = dashboard.VentasUltimaSemana.Select(v => v.Total).ToArray();
             ConfigureChart(labels, values);
-        }
 
+            // Configurar gráfico de productos por categoría
+            var categorias = dashboard.ProductosPorCategoria.Select(p => p.Categoria).ToArray();
+            var cantidades = dashboard.ProductosPorCategoria.Select(p => p.Cantidad).ToArray();
+            ConfigureProductosChart(categorias, cantidades);
+
+            // Configurar gráfico de montos por categoría
+            var categoriasMonto = dashboard.MontosPorCategoria.Select(m => m.Categoria).ToArray();
+            var montos = dashboard.MontosPorCategoria.Select(m => (int)m.Monto).ToArray();
+            ConfigureMontosChart(categoriasMonto, montos);
+
+            // Configurar gráfico de valor del stock por categoría
+            var categoriasStock = dashboard.StockPorCategoria.Select(s => s.Categoria).ToArray();
+            var valoresStock = dashboard.StockPorCategoria.Select(s => (int)s.ValorTotal).ToArray();
+            ConfigureStockChart(categoriasStock, valoresStock);
+        }
     }
 
-    private void ConfigureChart(string[] labels,int[] values)
+    private void ConfigureChart(string[] labels, int[] values)
     {
         barconfig.Data.Labels.Clear();
-
         barconfig.Data.Datasets.Clear();
 
         foreach(string lb in labels)
@@ -126,15 +226,119 @@
 
         IDataset<int> dataSet = new BarDataset<int>(values)
         {
-                Label = "Numero de ventas por día",
-                BackgroundColor = ColorUtil.ColorHexString(54, 162, 235),
-                BorderColor = ColorUtil.ColorHexString(54, 162, 235),
-                BorderWidth = 1
+            Label = "Ventas por día",
+            BackgroundColor = ColorUtil.ColorHexString(54, 162, 235),
+            BorderColor = ColorUtil.ColorHexString(54, 162, 235),
+            BorderWidth = 1
         };
         barconfig.Data.Datasets.Add(dataSet);
 
         _chart.Update();
     }
 
+    private void ConfigureProductosChart(string[] categorias, int[] cantidades)
+    {
+        productosConfig.Data.Labels.Clear();
+        productosConfig.Data.Datasets.Clear();
+
+        foreach(string categoria in categorias)
+            productosConfig.Data.Labels.Add(categoria);
+
+        IDataset<int> dataSet = new BarDataset<int>(cantidades)
+        {
+            Label = "Cantidad de productos vendidos",
+            BackgroundColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132),   // Rojo
+                ColorUtil.ColorHexString(54, 162, 235),   // Azul
+                ColorUtil.ColorHexString(255, 206, 86),   // Amarillo
+                ColorUtil.ColorHexString(75, 192, 192),   // Verde agua
+                ColorUtil.ColorHexString(153, 102, 255),  // Púrpura
+                ColorUtil.ColorHexString(255, 159, 64),   // Naranja
+                ColorUtil.ColorHexString(201, 203, 207),  // Gris
+                ColorUtil.ColorHexString(255, 99, 132)    // Rojo (repetido si hay más categorías)
+            },
+            BorderColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132),
+                ColorUtil.ColorHexString(54, 162, 235),
+                ColorUtil.ColorHexString(255, 206, 86),
+                ColorUtil.ColorHexString(75, 192, 192),
+                ColorUtil.ColorHexString(153, 102, 255),
+                ColorUtil.ColorHexString(255, 159, 64),
+                ColorUtil.ColorHexString(201, 203, 207),
+                ColorUtil.ColorHexString(255, 99, 132)
+            },
+            BorderWidth = 1
+        };
+        productosConfig.Data.Datasets.Add(dataSet);
+
+        _productosChart.Update();
+    }
+
+    private void ConfigureMontosChart(string[] categorias, int[] montos)
+    {
+        montosConfig.Data.Labels.Clear();
+        montosConfig.Data.Datasets.Clear();
+
+        foreach(string categoria in categorias)
+            montosConfig.Data.Labels.Add(categoria);
+
+        IDataset<int> dataSet = new BarDataset<int>(montos)
+        {
+            Label = "Monto total vendido",
+            BackgroundColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132),   // Rojo
+                ColorUtil.ColorHexString(54, 162, 235),   // Azul
+                ColorUtil.ColorHexString(255, 206, 86),   // Amarillo
+                ColorUtil.ColorHexString(75, 192, 192),   // Verde agua
+                ColorUtil.ColorHexString(153, 102, 255),  // Púrpura
+                ColorUtil.ColorHexString(255, 159, 64),   // Naranja
+                ColorUtil.ColorHexString(201, 203, 207),  // Gris
+                ColorUtil.ColorHexString(255, 99, 132)    // Rojo (repetido si hay más categorías)
+            },
+            BorderColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132),
+                ColorUtil.ColorHexString(54, 162, 235),
+                ColorUtil.ColorHexString(255, 206, 86),
+                ColorUtil.ColorHexString(75, 192, 192),
+                ColorUtil.ColorHexString(153, 102, 255),
+                ColorUtil.ColorHexString(255, 159, 64),
+                ColorUtil.ColorHexString(201, 203, 207),
+                ColorUtil.ColorHexString(255, 99, 132)
+            },
+            BorderWidth = 1
+        };
+        montosConfig.Data.Datasets.Add(dataSet);
+
+        _montosChart.Update();
+    }
+
+    private void ConfigureStockChart(string[] categorias, int[] valores)
+    {
+        stockConfig.Data.Labels.Clear();
+        stockConfig.Data.Datasets.Clear();
+
+        foreach(string categoria in categorias)
+            stockConfig.Data.Labels.Add(categoria);
+
+        var dataSet = new PieDataset<int>(valores)
+        {
+            BackgroundColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132),
+                ColorUtil.ColorHexString(54, 162, 235),
+                ColorUtil.ColorHexString(255, 206, 86),
+                ColorUtil.ColorHexString(75, 192, 192),
+                ColorUtil.ColorHexString(153, 102, 255),
+                ColorUtil.ColorHexString(255, 159, 64)
+            }
+        };
+        stockConfig.Data.Datasets.Add(dataSet);
+
+        _stockChart.Update();
+    }
 }
 

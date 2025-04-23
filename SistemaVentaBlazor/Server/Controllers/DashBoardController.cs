@@ -33,6 +33,7 @@ namespace SistemaVentaBlazor.Server.Controllers
                 vmDashboard.TotalVentas = await _dashboardRepositorio.TotalVentasUltimaSemana();
                 vmDashboard.TotalIngresos = await _dashboardRepositorio.TotalIngresosUltimaSemana();
                 vmDashboard.TotalProductos = await _dashboardRepositorio.TotalProductos();
+                vmDashboard.ValorTotalStock = await _dashboardRepositorio.ValorTotalStock();
 
                 List<VentaSemanaDTO> listaVentasSemana = new List<VentaSemanaDTO>();
 
@@ -45,6 +46,42 @@ namespace SistemaVentaBlazor.Server.Controllers
                     });
                 }
                 vmDashboard.VentasUltimaSemana = listaVentasSemana;
+
+                // Obtener productos por categoría
+                List<ProductoCategoriaDTO> listaProductosCategoria = new List<ProductoCategoriaDTO>();
+                foreach (KeyValuePair<string, int> item in await _dashboardRepositorio.ProductosPorCategoria())
+                {
+                    listaProductosCategoria.Add(new ProductoCategoriaDTO()
+                    {
+                        Categoria = item.Key,
+                        Cantidad = item.Value
+                    });
+                }
+                vmDashboard.ProductosPorCategoria = listaProductosCategoria;
+
+                // Obtener montos por categoría
+                List<MontoCategoriaDTO> listaMontosCategoria = new List<MontoCategoriaDTO>();
+                foreach (KeyValuePair<string, decimal> item in await _dashboardRepositorio.MontosPorCategoria())
+                {
+                    listaMontosCategoria.Add(new MontoCategoriaDTO()
+                    {
+                        Categoria = item.Key,
+                        Monto = item.Value
+                    });
+                }
+                vmDashboard.MontosPorCategoria = listaMontosCategoria;
+
+                // Obtener valor del stock por categoría
+                List<StockCategoriaDTO> listaStockCategoria = new List<StockCategoriaDTO>();
+                foreach (KeyValuePair<string, decimal> item in await _dashboardRepositorio.StockPorCategoria())
+                {
+                    listaStockCategoria.Add(new StockCategoriaDTO()
+                    {
+                        Categoria = item.Key,
+                        ValorTotal = item.Value
+                    });
+                }
+                vmDashboard.StockPorCategoria = listaStockCategoria;
 
                 _response = new ResponseDTO<DashBoardDTO>() { status = true, msg = "ok", value = vmDashboard };
                 return StatusCode(StatusCodes.Status200OK, _response);
