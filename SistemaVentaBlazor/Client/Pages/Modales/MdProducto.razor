@@ -12,6 +12,8 @@
                 <MudTextField @bind-Value="@_producto.Nombre" Class="mb-3"
                               Label="Nombre" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Badge" />
 
+                <MudTextField @bind-Value="@_producto.CodigoBarras" Class="mb-3"
+                              Label="Código de Barras" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.QrCode2" />
 
                 <MudSelect Label="Categoria" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="mb-3"
                            @bind-Value="categoriaSeleccionado">

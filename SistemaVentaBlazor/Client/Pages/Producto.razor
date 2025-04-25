@@ -30,6 +30,7 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Nombre</MudTh>
+                        <MudTh>Código de Barras</MudTh>
                         <MudTh>Categoria</MudTh>
                         <MudTh>Stock</MudTh>
                         <MudTh>Precio</MudTh>
@@ -37,9 +38,10 @@
                     </HeaderContent>
                     <RowTemplate Context="productoRow">
                         <MudTd DataLabel="Nombre">@productoRow.Nombre</MudTd>
-                        <MudTd DataLabel="Correo">@productoRow.DescripcionCategoria</MudTd>
-                        <MudTd DataLabel="Rol">@productoRow.Stock</MudTd>
-                        <MudTd DataLabel="Precio">@productoRow.Precio</MudTd>
+                        <MudTd DataLabel="Código de Barras">@productoRow.CodigoBarras</MudTd>
+                        <MudTd DataLabel="Categoria">@productoRow.DescripcionCategoria</MudTd>
+                        <MudTd DataLabel="Stock">@productoRow.Stock</MudTd>
+                        <MudTd DataLabel="Precio">$ @productoRow.Precio?.ToString("N2")</MudTd>
                         <MudTd DataLabel="">
                             <MudFab Color="Color.Primary"
                                     StartIcon="@Icons.Material.Filled.Edit"
@@ -94,12 +96,14 @@
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.Nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Nombre?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true)
             return true;
-        if (element.DescripcionCategoria.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.CodigoBarras?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+        if (element.DescripcionCategoria?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true)
             return true;
      
-        if ($"{element.Nombre} {element.DescripcionCategoria}".Contains(searchString))
+        if ($"{element.Nombre} {element.CodigoBarras} {element.DescripcionCategoria}".Contains(searchString))
             return true;
 
         return false;

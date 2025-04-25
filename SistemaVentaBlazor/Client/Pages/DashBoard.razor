@@ -39,7 +39,7 @@
                 <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Layers" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Productos</MudText>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Categorías</MudText>
                         <MudText Typo="Typo.h5">@dashboard.TotalProductos</MudText>
                     </div>
                 </MudPaper>
@@ -48,7 +48,7 @@
                 <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
                     <MudIcon Icon="@Icons.Material.Filled.Inventory" Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
                     <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Valor Total Stock</MudText>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Valoración Total Stock</MudText>
                         <MudText Typo="Typo.h5">@dashboard.ValorTotalStock</MudText>
                     </div>
                 </MudPaper>
@@ -158,7 +158,7 @@
                 Title = new OptionsTitle
                 {
                     Display = true,
-                    Text = "Montos vendidos por categoría"
+                    Text = "Montos vendidos por categoría ($)"
                 },
                 Scales = new BarScales
                 {
@@ -174,7 +174,7 @@
             }
         };
 
-        // Configuración del gráfico de valor del stock por categoría (ahora es un gráfico de torta)
+        // Configuración del gráfico de valor del stock por categoría
         stockConfig = new PieConfig
         {
             Options = new PieOptions
@@ -184,7 +184,7 @@
                 Title = new OptionsTitle
                 {
                     Display = true,
-                    Text = "Valor total del stock por categoría"
+                    Text = "Valoración Total Stock por Categoría ($)"
                 }
             }
         };
@@ -195,23 +195,23 @@
             dashboard = (DashBoardDTO)response.value!;
             
             // Configurar gráfico de ventas semanales
-            var labels = dashboard.VentasUltimaSemana.Select(v => v.Fecha).ToArray();
-            var values = dashboard.VentasUltimaSemana.Select(v => v.Total).ToArray();
+            var labels = dashboard.VentasUltimaSemana?.Select(v => v.Fecha).ToArray() ?? Array.Empty<string>();
+            var values = dashboard.VentasUltimaSemana?.Select(v => v.Total).ToArray() ?? Array.Empty<int>();
             ConfigureChart(labels, values);
 
             // Configurar gráfico de productos por categoría
-            var categorias = dashboard.ProductosPorCategoria.Select(p => p.Categoria).ToArray();
-            var cantidades = dashboard.ProductosPorCategoria.Select(p => p.Cantidad).ToArray();
+            var categorias = dashboard.ProductosPorCategoria?.Select(p => p.Categoria).ToArray() ?? Array.Empty<string>();
+            var cantidades = dashboard.ProductosPorCategoria?.Select(p => p.Cantidad).ToArray() ?? Array.Empty<int>();
             ConfigureProductosChart(categorias, cantidades);
 
             // Configurar gráfico de montos por categoría
-            var categoriasMonto = dashboard.MontosPorCategoria.Select(m => m.Categoria).ToArray();
-            var montos = dashboard.MontosPorCategoria.Select(m => (int)m.Monto).ToArray();
+            var categoriasMonto = dashboard.MontosPorCategoria?.Select(m => m.Categoria).ToArray() ?? Array.Empty<string>();
+            var montos = dashboard.MontosPorCategoria?.Select(m => (int)m.Monto).ToArray() ?? Array.Empty<int>();
             ConfigureMontosChart(categoriasMonto, montos);
 
             // Configurar gráfico de valor del stock por categoría
-            var categoriasStock = dashboard.StockPorCategoria.Select(s => s.Categoria).ToArray();
-            var valoresStock = dashboard.StockPorCategoria.Select(s => (int)s.ValorTotal).ToArray();
+            var categoriasStock = dashboard.StockPorCategoria?.Select(s => s.Categoria).ToArray() ?? Array.Empty<string>();
+            var valoresStock = dashboard.StockPorCategoria?.Select(s => (int)s.ValorTotal).ToArray() ?? Array.Empty<int>();
             ConfigureStockChart(categoriasStock, valoresStock);
         }
     }
@@ -286,7 +286,6 @@
 
         IDataset<int> dataSet = new BarDataset<int>(montos)
         {
-            Label = "Monto total vendido",
             BackgroundColor = new[]
             {
                 ColorUtil.ColorHexString(255, 99, 132),   // Rojo

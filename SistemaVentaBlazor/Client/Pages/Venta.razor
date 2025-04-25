@@ -4,6 +4,7 @@
 @inject IVentaService _ventaServicio;
 @inject ISnackbar _snackBar
 @inject SweetAlertService Swal;
+@inject IJSRuntime JSRuntime
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-5">
 
@@ -12,16 +13,40 @@
     <MudPaper Elevation="3" Class="pa-4" Width="100%">
         <MudGrid>
             <MudItem xs="6">
+                <MudTextField @bind-Value="_codigoBarras" 
+                            Label="Escanear código de barras" 
+                            Variant="Variant.Outlined" 
+                            Margin="Margin.Dense"
+                            Immediate="true"
+                            @onkeyup="OnCodigoBarrasKeyUp"
+                            @ref="_codigoBarrasInput"
+                            Adornment="Adornment.End"
+                            AdornmentIcon="@Icons.Material.Filled.QrCode2"
+                            AdornmentColor="Color.Primary"/>
 
-                <MudAutocomplete T="ProductoDTO" Label="Buscar producto" @bind-Value="_productoSeleccionado" SearchFunc="@BuscarProducto"
-                                 ResetValueOnEmptyText="true"
-                                 AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-                                 Variant="Variant.Outlined" Margin="Margin.Dense" 
-                                 ToStringFunc="@(e => e == null ? null : $"{e.Nombre} - {e.DescripcionCategoria}")"
-                                 />
+                <MudText Typo="Typo.caption" Color="Color.Info" Class="ml-2">
+                    Escanee el código de barras o búsquelo manualmente
+                </MudText>
+
+                <MudAutocomplete T="ProductoDTO" 
+                                Label="Buscar producto manualmente" 
+                                @bind-Value="_productoSeleccionado" 
+                                SearchFunc="@BuscarProducto"
+                                ResetValueOnEmptyText="true"
+                                AdornmentIcon="@Icons.Material.Filled.Search" 
+                                AdornmentColor="Color.Primary"
+                                Variant="Variant.Outlined" 
+                                Margin="Margin.Dense" 
+                                ToStringFunc="@(e => e == null ? null : $"{e.Nombre} - {e.CodigoBarras}")"
+                                Class="mt-2"/>
             </MudItem>
             <MudItem xs="3">
-                <MudNumericField @bind-Value="_cantidad" Label="Cantidad" Variant="Variant.Outlined" Step="1" Margin="Margin.Dense" />
+                <MudNumericField @bind-Value="_cantidad" 
+                                Label="Cantidad" 
+                                Variant="Variant.Outlined" 
+                                Step="1" 
+                                Min="1"
+                                Margin="Margin.Dense" />
             </MudItem>
             <MudItem xs="3">
                 <MudButton 
@@ -46,7 +71,7 @@
             <MudItem xs="3">
                 <MudAlert Severity="Severity.Warning" NoIcon="true" Variant="Variant.Filled"
                           ContentAlignment="HorizontalAlignment.Center" Dense="true" Class="mt-1">
-                    Total @_venta.TotalTexto
+                    Total $ @_venta.TotalTexto
                     </MudAlert>
             </MudItem>
 
@@ -55,6 +80,7 @@
                 <MudTable Items="@_venta.DetalleVenta" Dense="true" Striped="true" Bordered="true">
                     <HeaderContent>
                         <MudTh>Producto</MudTh>
+                        <MudTh>Código</MudTh>
                         <MudTh>Cantidad</MudTh>
                         <MudTh>Precio</MudTh>
                         <MudTh>Total</MudTh>
@@ -62,9 +88,10 @@
                     </HeaderContent>
                     <RowTemplate Context="dvProducto">
                         <MudTd DataLabel="Producto">@dvProducto.DescripcionProducto</MudTd>
+                        <MudTd DataLabel="Código">@dvProducto.CodigoBarras</MudTd>
                         <MudTd DataLabel="Cantidad">@dvProducto.Cantidad</MudTd>
-                        <MudTd DataLabel="Precio">@dvProducto.Precio</MudTd>
-                        <MudTd DataLabel="Total">@dvProducto.Total</MudTd>
+                        <MudTd DataLabel="Precio">$ @dvProducto.Precio?.ToString("N2")</MudTd>
+                        <MudTd DataLabel="Total">$ @dvProducto.Total?.ToString("N2")</MudTd>
                         <MudTd DataLabel="">
                             <MudFab Color="Color.Error"
                                     StartIcon="@Icons.Material.Filled.Delete"
@@ -93,7 +120,9 @@
 </MudContainer>
 
 @code {
-    private int _cantidad = 0;
+    private int _cantidad = 1;
+    private string _codigoBarras = "";
+    private MudTextField<string> _codigoBarrasInput;
     VentaDTO _venta = new VentaDTO() 
     { 
         TipoPago = "Efectivo" ,
@@ -102,8 +131,50 @@
     private ProductoDTO _productoSeleccionado;
     private bool botonDesactivado = false;
 
-    private async Task<IEnumerable<ProductoDTO>> BuscarProducto(string valor){
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FocusCodigoBarras();
+        }
+    }
 
+    private async Task FocusCodigoBarras()
+    {
+        if (_codigoBarrasInput != null)
+        {
+            await _codigoBarrasInput.FocusAsync();
+        }
+    }
+
+    private async Task OnCodigoBarrasKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrEmpty(_codigoBarras))
+        {
+            var response = await _productoServicio.Lista();
+            if (response.status)
+            {
+                List<ProductoDTO> lista = (List<ProductoDTO>)response.value!;
+                var producto = lista.FirstOrDefault(p => p.CodigoBarras == _codigoBarras);
+                
+                if (producto != null)
+                {
+                    _productoSeleccionado = producto;
+                    await AgregarProducto();
+                    _codigoBarras = "";
+                    await FocusCodigoBarras();
+                }
+                else
+                {
+                    await Swal.FireAsync("Error", "Producto no encontrado", "error");
+                    _codigoBarras = "";
+                    await FocusCodigoBarras();
+                }
+            }
+        }
+    }
+
+    private async Task<IEnumerable<ProductoDTO>> BuscarProducto(string valor){
         var response = await _productoServicio.Lista();
 
         if (response.status)
@@ -111,12 +182,15 @@
             if (string.IsNullOrEmpty(valor))
                 return new List<ProductoDTO>();
 
-            List<ProductoDTO> lista =(List<ProductoDTO>)response.value!;
-            return lista.FindAll(p => p.Nombre.Contains(valor, StringComparison.InvariantCultureIgnoreCase));
+            List<ProductoDTO> lista = (List<ProductoDTO>)response.value!;
+            return lista.FindAll(p => 
+                p.Nombre.Contains(valor, StringComparison.InvariantCultureIgnoreCase) ||
+                (p.CodigoBarras != null && p.CodigoBarras.Contains(valor, StringComparison.InvariantCultureIgnoreCase))
+            );
         }
         else
         {
-            return new List<ProductoDTO> ();
+            return new List<ProductoDTO>();
         }
     }
 
@@ -143,22 +217,36 @@
             {
                 IdProducto = _productoSeleccionado.IdProducto,
                 DescripcionProducto = _productoSeleccionado.Nombre,
+                CodigoBarras = _productoSeleccionado.CodigoBarras,
                 Cantidad = _cantidad,
                 Precio = _productoSeleccionado.Precio,
-                Total = _cantidad  * _productoSeleccionado.Precio
+                Total = _cantidad * _productoSeleccionado.Precio
             };
-            _venta.DetalleVenta!.Add(detalleVenta);
+
+            // Si el producto ya está en la venta, actualizar la cantidad
+            var productoExistente = _venta.DetalleVenta!
+                .FirstOrDefault(p => p.IdProducto == _productoSeleccionado.IdProducto);
+
+            if (productoExistente != null)
+            {
+                productoExistente.Cantidad += _cantidad;
+                productoExistente.Total = productoExistente.Cantidad * productoExistente.Precio;
+            }
+            else
+            {
+                _venta.DetalleVenta!.Add(detalleVenta);
+            }
 
             _productoSeleccionado = null;
-            _cantidad = 0;
+            _cantidad = 1;
         }
     }
 
-
     private async Task EliminarProducto(int idproducto)
     {
-        var productoEliminar = _venta.DetalleVenta.Find(p => p.IdProducto == idproducto);
-        _venta.DetalleVenta.Remove(productoEliminar);
+        var productoEliminar = _venta.DetalleVenta!.Find(p => p.IdProducto == idproducto);
+        _venta.DetalleVenta!.Remove(productoEliminar!);
+        await FocusCodigoBarras();
     }
 
     private async Task RegistrarVenta()
@@ -186,6 +274,7 @@
              };
 
             await Swal.FireAsync("Venta Registrada", $"Numero de venta: {_ventaCreada.NumeroDocumento}", "success");
+            await FocusCodigoBarras();
         }
         else
         {

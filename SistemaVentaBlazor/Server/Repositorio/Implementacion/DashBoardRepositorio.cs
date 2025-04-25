@@ -14,22 +14,12 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
 
         public async Task<int> TotalVentasUltimaSemana()
         {
-            int total = 0;
             try
             {
                 IQueryable<Venta> _ventaQuery = _dbcontext.Venta.AsQueryable();
-
-                if (_ventaQuery.Count() > 0)
-                {
-                    DateTime? ultimaFecha = _dbcontext.Venta.OrderByDescending(v => v.FechaRegistro).Select(v => v.FechaRegistro).First();
-
-                    ultimaFecha = ultimaFecha.Value.AddDays(-7);
-
-                    IQueryable<Venta> query = _dbcontext.Venta.Where(v => v.FechaRegistro.Value.Date >= ultimaFecha.Value.Date);
-                    total = query.Count();
-                }
-
-                return total;
+                DateTime fechaHoy = DateTime.Today;
+                
+                return _ventaQuery.Count(v => v.FechaRegistro.Value.Date == fechaHoy);
             }
             catch
             {
@@ -38,37 +28,27 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
         }
         public async Task<string> TotalIngresosUltimaSemana()
         {
-            decimal resultado = 0;
             try
             {
                 IQueryable<Venta> _ventaQuery = _dbcontext.Venta.AsQueryable();
+                DateTime fechaHoy = DateTime.Today;
+                
+                decimal resultado = _ventaQuery
+                    .Where(v => v.FechaRegistro.Value.Date == fechaHoy)
+                    .Sum(v => v.Total ?? 0);
 
-                if (_ventaQuery.Count() > 0)
-                {
-                    DateTime? ultimaFecha = _dbcontext.Venta.OrderByDescending(v => v.FechaRegistro).Select(v => v.FechaRegistro).First();
-                    ultimaFecha = ultimaFecha.Value.AddDays(-7);
-                    IQueryable<Venta> query = _dbcontext.Venta.Where(v => v.FechaRegistro.Value.Date >= ultimaFecha.Value.Date);
-
-                    resultado = query
-                         .Select(v => v.Total)
-                         .Sum(v => v.Value);
-                }
-
-
-                return Convert.ToString(resultado, new CultureInfo("es-PE"));
+                return string.Format("$ {0:N2}", resultado);
             }
             catch
             {
                 throw;
             }
-
-
         }
         public async Task<int> TotalProductos()
         {
             try
             {
-                IQueryable<Producto> query = _dbcontext.Productos;
+                IQueryable<Categoria> query = _dbcontext.Categoria;
                 int total = query.Count();
                 return total;
             }
@@ -137,7 +117,7 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
                            join p in _dbcontext.Productos on dv.IdProducto equals p.IdProducto
                            join c in _dbcontext.Categoria on p.IdCategoria equals c.IdCategoria
                            group dv by c.Descripcion into g
-                           select new { Categoria = g.Key, Monto = g.Sum(x => x.Total ?? 0) };
+                           select new { Categoria = g.Key, Monto = Math.Round(g.Sum(x => x.Total ?? 0), 2) };
 
                 resultado = query.ToDictionary(keySelector: r => r.Categoria, elementSelector: r => r.Monto);
 
@@ -157,7 +137,7 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
                 var query = from p in _dbcontext.Productos
                            join c in _dbcontext.Categoria on p.IdCategoria equals c.IdCategoria
                            group p by c.Descripcion into g
-                           select new { Categoria = g.Key, ValorTotal = g.Sum(x => (x.Stock * x.Precio) ?? 0) };
+                           select new { Categoria = g.Key, ValorTotal = Math.Round(g.Sum(x => (x.Stock * x.Precio) ?? 0), 2) };
 
                 resultado = query.ToDictionary(keySelector: r => r.Categoria, elementSelector: r => r.ValorTotal);
 
@@ -177,7 +157,7 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
                 resultado = _dbcontext.Productos
                     .Sum(p => (p.Stock * p.Precio) ?? 0);
 
-                return Convert.ToString(resultado, new CultureInfo("es-PE"));
+                return string.Format("$ {0:N2}", resultado);
             }
             catch
             {
