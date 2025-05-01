@@ -1,0 +1,2 @@
+ALTER TABLE Producto
+ADD COLUMN CodigoBarras VARCHAR(50) NULL; 

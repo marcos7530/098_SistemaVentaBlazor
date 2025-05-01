@@ -1,0 +1,153 @@
+-- INSERTAR ROLES
+INSERT INTO Rol(descripcion, esActivo) VALUES
+('Administrador', true),
+('Empleado', true);
+
+-- INSERTAR USUARIOS
+INSERT INTO Usuario(nombreApellidos, correo, idRol, Clave, esActivo) VALUES
+('jose smith', 'admin@example.com', 1, '12345', true),
+('luis smith', 'employe@example.com', 2, '12345', true);
+
+-- INSERTAR CATEGORIAS
+INSERT INTO Categoria(descripcion, esActivo) VALUES 
+('Bebidas', true),
+('Snacks', true),
+('Golosinas', true),
+('Galletas', true),
+('Cigarrillos', true),
+('Artículos de Limpieza', true);
+
+-- INSERTAR PRODUCTOS
+INSERT INTO Producto(nombre, idCategoria, stock, precio, esActivo) VALUES
+-- Bebidas (20 productos)
+('Coca Cola 500ml', 1, 50, 2.50, true),
+('Pepsi 500ml', 1, 40, 2.30, true),
+('Agua Mineral 600ml', 1, 60, 1.50, true),
+('Gatorade Tropical 500ml', 1, 30, 3.00, true),
+('Red Bull 250ml', 1, 24, 4.50, true),
+('Sprite 500ml', 1, 45, 2.50, true),
+('Fanta 500ml', 1, 45, 2.50, true),
+('Inca Kola 500ml', 1, 50, 2.50, true),
+('Powerade 500ml', 1, 30, 3.00, true),
+('Monster Energy 473ml', 1, 24, 4.50, true),
+('Coca Cola 1.5L', 1, 30, 5.50, true),
+('Pepsi 1.5L', 1, 25, 5.00, true),
+('Agua Mineral 1.5L', 1, 35, 2.50, true),
+('Sprite 1.5L', 1, 25, 5.00, true),
+('Fanta 1.5L', 1, 25, 5.00, true),
+('Inca Kola 1.5L', 1, 30, 5.50, true),
+('Coca Cola 3L', 1, 20, 8.50, true),
+('Pepsi 3L', 1, 20, 8.00, true),
+('Agua Mineral 2.5L', 1, 25, 3.50, true),
+('Sprite 3L', 1, 20, 8.00, true),
+
+-- Snacks (20 productos)
+('Doritos Nacho 45g', 2, 40, 1.80, true),
+('Cheetos 45g', 2, 30, 1.50, true),
+('Piqueo Snax 45g', 2, 25, 1.50, true),
+('Maní Salado 100g', 2, 20, 2.00, true),
+('Tortees Natural 138g', 2, 30, 2.50, true),
+('Cheese Tris 34g', 2, 35, 1.00, true),
+('Papas Pringles Original 124g', 2, 25, 4.50, true),
+('Doritos Queso 45g', 2, 40, 1.80, true),
+('Cheetos Picantes 45g', 2, 30, 1.50, true),
+('Maní Con Pasas 100g', 2, 20, 2.50, true),
+('Habas Saladas 100g', 2, 25, 2.00, true),
+('Camote Frito 50g', 2, 20, 1.50, true),
+('Chifles Salados 45g', 2, 30, 1.50, true),
+('Mix Frutos Secos 100g', 2, 20, 3.50, true),
+('Papas Al Hilo 50g', 2, 35, 1.50, true),
+('Tortilla Chips 45g', 2, 30, 1.80, true),
+('Pop Corn Mantequilla 100g', 2, 25, 2.00, true),
+('Nuts Original 100g', 2, 20, 3.00, true),
+
+-- Golosinas (20 productos)
+('Chocolate Sublime', 3, 48, 1.20, true),
+('Chocolate Princesa', 3, 48, 1.00, true),
+('Caramelos Halls', 3, 60, 0.80, true),
+('Chicles Trident', 3, 72, 1.00, true),
+('M&Ms 45g', 3, 36, 2.50, true),
+('Snickers 52.7g', 3, 36, 2.50, true),
+('Twix 50g', 3, 36, 2.50, true),
+('Kit Kat 41.5g', 3, 36, 2.50, true),
+('Chocolate Milky Way', 3, 36, 2.50, true),
+('Chocolate Hersheys', 3, 36, 3.00, true),
+('Chocolate Toblerone 100g', 3, 24, 8.00, true),
+('Chocolate Vizzio', 3, 48, 1.20, true),
+('Chocolate Triangulo', 3, 48, 1.00, true),
+('Chocolate Cua Cua', 3, 48, 1.00, true),
+('Chocolate Winter', 3, 48, 1.00, true),
+('Caramelos Mentitas', 3, 60, 0.50, true),
+('Chicles Adams', 3, 72, 0.50, true),
+('Gomitas Mogul', 3, 40, 1.00, true),
+('Gomitas Ambrosoli', 3, 40, 1.00, true),
+('Chocolate Ferrero 100g', 3, 24, 8.50, true),
+
+-- Galletas (20 productos)
+('Oreo Regular', 4, 40, 1.00, true),
+('Ritz Original', 4, 35, 0.90, true),
+('Soda Field', 4, 50, 0.50, true),
+('Vainilla Field', 4, 50, 0.50, true),
+('Chokis', 4, 30, 1.20, true),
+('Club Social', 4, 45, 0.80, true),
+('Morochas', 4, 40, 1.00, true),
+('Tentación', 4, 40, 1.00, true),
+('Casino', 4, 40, 1.00, true),
+('Picaras', 4, 40, 1.00, true),
+('Glacitas', 4, 40, 1.00, true),
+('Cream Crackers', 4, 50, 0.50, true),
+('Galletas Animalitos', 4, 50, 0.50, true),
+('Wafer Chocolate', 4, 40, 0.80, true),
+('Wafer Vainilla', 4, 40, 0.80, true),
+('Galletas Integrackers', 4, 45, 0.90, true),
+('Galletas Kraps', 4, 40, 1.00, true),
+('Galletas Coronita', 4, 40, 1.00, true),
+('Galletas Charada', 4, 40, 1.00, true),
+('Galletas Rellenitas', 4, 40, 1.00, true),
+
+-- Cigarrillos (20 productos)
+('Lucky Strike Regular 20', 5, 30, 8.50, true),
+('Marlboro Rojo 20', 5, 30, 8.50, true),
+('Hamilton Blue 20', 5, 25, 7.00, true),
+('L&M Blue 20', 5, 25, 7.00, true),
+('Pall Mall 20', 5, 20, 6.50, true),
+('Lucky Strike Mentol 20', 5, 30, 8.50, true),
+('Marlboro Ice 20', 5, 30, 8.50, true),
+('Hamilton Gold 20', 5, 25, 7.00, true),
+('L&M Red 20', 5, 25, 7.00, true),
+('Pall Mall Mentol 20', 5, 20, 6.50, true),
+('Lucky Strike Double Click 20', 5, 30, 9.00, true),
+('Marlboro Double Fusion 20', 5, 30, 9.00, true),
+('Hamilton Fresh 20', 5, 25, 7.00, true),
+('L&M Forward 20', 5, 25, 7.00, true),
+('Winston Blue 20', 5, 25, 7.50, true),
+('Winston Red 20', 5, 25, 7.50, true),
+('Camel Blue 20', 5, 25, 8.00, true),
+('Camel Regular 20', 5, 25, 8.00, true),
+('Next Red 20', 5, 20, 6.00, true),
+('Next Blue 20', 5, 20, 6.00, true),
+
+-- Artículos de Limpieza (20 productos)
+('Papel Higiénico x1', 6, 48, 1.20, true),
+('Jabón de Baño', 6, 36, 1.50, true),
+('Pasta Dental 75ml', 6, 24, 2.50, true),
+('Cepillo Dental', 6, 24, 2.00, true),
+('Toallas Húmedas x10', 6, 30, 1.80, true),
+('Shampoo Sachet 15ml', 6, 50, 1.00, true),
+('Acondicionador Sachet 15ml', 6, 50, 1.00, true),
+('Desodorante Sachet', 6, 40, 1.00, true),
+('Jabón Líquido Sachet', 6, 40, 1.00, true),
+('Alcohol en Gel 60ml', 6, 30, 2.50, true),
+('Pañuelos Tissue x10', 6, 40, 1.00, true),
+('Toallas Femeninas x10', 6, 30, 3.50, true),
+('Protectores Diarios x15', 6, 30, 3.00, true),
+('Algodón 25g', 6, 24, 1.50, true),
+('Hisopos x50', 6, 24, 2.00, true),
+('Enjuague Bucal 60ml', 6, 24, 2.50, true),
+('Gel Antibacterial 60ml', 6, 30, 2.50, true),
+('Jabón Íntimo Sachet', 6, 30, 1.50, true),
+('Crema Dental Sachet', 6, 40, 1.00, true),
+('Alcohol 70° 60ml', 6, 30, 2.00, true);
+
+-- INSERTAR NUMERO VENTA INICIAL
+INSERT INTO NumeroDocumento(ultimo_Numero) VALUES(0);

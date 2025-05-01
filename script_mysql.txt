@@ -1,15 +1,15 @@
-CREATE DATABASE IF NOT EXISTS u139333448_PruebasMarcelo;
+CREATE DATABASE DBVentaBlazor;
 
-USE u139333448_PruebasMarcelo;
+USE DBVentaBlazor;
 
-CREATE TABLE IF NOT EXISTS Rol(
+CREATE TABLE Rol(
     idRol INT PRIMARY KEY AUTO_INCREMENT,
     descripcion VARCHAR(50),
     esActivo BOOLEAN,
     fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Usuario(
+CREATE TABLE Usuario(
     idUsuario INT PRIMARY KEY AUTO_INCREMENT,
     nombreApellidos VARCHAR(100),
     correo VARCHAR(40),
@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS Usuario(
     FOREIGN KEY (idRol) REFERENCES Rol(idRol)
 );
 
-CREATE TABLE IF NOT EXISTS Categoria(
+CREATE TABLE Categoria(
     idCategoria INT PRIMARY KEY AUTO_INCREMENT,
     descripcion VARCHAR(50),
     esActivo BOOLEAN,
     fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Producto (
+CREATE TABLE Producto (
     idProducto INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100),
     idCategoria INT,
@@ -37,13 +37,13 @@ CREATE TABLE IF NOT EXISTS Producto (
     FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria)
 );
 
-CREATE TABLE IF NOT EXISTS NumeroDocumento(
+CREATE TABLE NumeroDocumento(
     idNumeroDocumento INT PRIMARY KEY AUTO_INCREMENT,
     ultimo_Numero INT NOT NULL,
     fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Venta(
+CREATE TABLE Venta(
     idVenta INT PRIMARY KEY AUTO_INCREMENT,
     numeroDocumento VARCHAR(40),
     tipoPago VARCHAR(50),
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Venta(
     total DECIMAL(10,2)
 );
 
-CREATE TABLE IF NOT EXISTS DetalleVenta(
+CREATE TABLE DetalleVenta(
     idDetalleVenta INT PRIMARY KEY AUTO_INCREMENT,
     idVenta INT,
     idProducto INT,
@@ -60,11 +60,4 @@ CREATE TABLE IF NOT EXISTS DetalleVenta(
     total DECIMAL(10,2),
     FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
-);
-
--- Crear tabla de migraciones si no existe
-CREATE TABLE IF NOT EXISTS __EFMigrationsHistory (
-    MigrationId VARCHAR(150) NOT NULL,
-    ProductVersion VARCHAR(32) NOT NULL,
-    PRIMARY KEY (MigrationId)
 );
