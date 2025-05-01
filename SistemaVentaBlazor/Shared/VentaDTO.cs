@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SistemaVentaBlazor.Shared
@@ -11,18 +12,26 @@ namespace SistemaVentaBlazor.Shared
         public int IdVenta { get; set; }
         public string? NumeroDocumento { get; set; }
         public string? TipoPago { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public DateTime? FechaRegistro { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public decimal? Total { get; set; }
-        public string? TotalTexto {
 
-            get { 
-                decimal? sum = 0;
-                if (DetalleVenta.Count > 0)
-                    sum = DetalleVenta.Sum(p => p.Total);
+        [JsonIgnore]
+        public string? TotalTexto
+        {
+            get
+            {
+                if (DetalleVenta == null || !DetalleVenta.Any())
+                    return "0";
 
-                return sum.ToString();
+                decimal? sum = DetalleVenta.Sum(p => p.Total);
+                return sum?.ToString() ?? "0";
             }
         }
-        public virtual List<DetalleVentaDTO>? DetalleVenta { get; set; }
+
+        public List<DetalleVentaDTO> DetalleVenta { get; set; } = new List<DetalleVentaDTO>();
     }
 }

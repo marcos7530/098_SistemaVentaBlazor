@@ -22,7 +22,6 @@ namespace SistemaVentaBlazor.Server.Controllers
             _ventaRepositorio = ventaRepositorio;
         }
 
-
         [HttpPost]
         [Route("Registrar")]
         public async Task<IActionResult> Registrar([FromBody] VentaDTO request)
@@ -30,20 +29,38 @@ namespace SistemaVentaBlazor.Server.Controllers
             ResponseDTO<VentaDTO> _ResponseDTO = new ResponseDTO<VentaDTO>();
             try
             {
+                Console.WriteLine("Iniciando registro de venta...");
+                Console.WriteLine($"Datos recibidos: {System.Text.Json.JsonSerializer.Serialize(request)}");
+
+                if (request == null || request.DetalleVenta == null || !request.DetalleVenta.Any())
+                {
+                    _ResponseDTO = new ResponseDTO<VentaDTO>() { status = false, msg = "No hay productos en la venta" };
+                    return BadRequest(_ResponseDTO);
+                }
 
                 Venta venta_creada = await _ventaRepositorio.Registrar(_mapper.Map<Venta>(request));
-                request = _mapper.Map<VentaDTO>(venta_creada);
-
+                
                 if (venta_creada.IdVenta != 0)
+                {
+                    request = _mapper.Map<VentaDTO>(venta_creada);
                     _ResponseDTO = new ResponseDTO<VentaDTO>() { status = true, msg = "ok", value = request };
+                    Console.WriteLine("Venta registrada exitosamente");
+                }
                 else
+                {
                     _ResponseDTO = new ResponseDTO<VentaDTO>() { status = false, msg = "No se pudo registrar la venta" };
+                    Console.WriteLine("Error: No se pudo registrar la venta");
+                }
 
                 return StatusCode(StatusCodes.Status200OK, _ResponseDTO);
             }
             catch (Exception ex)
             {
-                _ResponseDTO = new ResponseDTO<VentaDTO>() { status = false, msg = ex.Message };
+                Console.WriteLine($"Error al registrar venta: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                
+                _ResponseDTO = new ResponseDTO<VentaDTO>() { status = false, msg = $"Error al registrar venta: {ex.Message}" };
                 return StatusCode(StatusCodes.Status500InternalServerError, _ResponseDTO);
             }
         }
