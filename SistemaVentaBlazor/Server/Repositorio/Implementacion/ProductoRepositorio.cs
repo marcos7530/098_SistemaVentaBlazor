@@ -15,8 +15,25 @@ namespace SistemaVentaBlazor.Server.Repositorio.Implementacion
         }
         public async Task<IQueryable<Producto>> Consultar(Expression<Func<Producto, bool>> filtro = null)
         {
-            IQueryable<Producto> queryEntidad = filtro == null ? _dbContext.Productos : _dbContext.Productos.Where(filtro);
-            return queryEntidad;
+            try
+            {
+                var queryEntidad = filtro == null ? 
+                    _dbContext.Productos.AsQueryable() : 
+                    _dbContext.Productos.Where(filtro);
+                
+                // Verificar que podemos acceder a los datos
+                await queryEntidad.AnyAsync();
+                
+                return queryEntidad;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details
+                Console.WriteLine($"Error en Consultar: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                throw;
+            }
         }
 
         public async Task<Producto> Crear(Producto entidad)

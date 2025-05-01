@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaVentaBlazor.Server.Models;
 using SistemaVentaBlazor.Server.Repositorio.Contrato;
 using SistemaVentaBlazor.Shared;
+using System.Text.Json;
 
 namespace SistemaVentaBlazor.Server.Controllers
 {
@@ -13,7 +14,6 @@ namespace SistemaVentaBlazor.Server.Controllers
     [ApiController]
     public class ProductoController : ControllerBase
     {
-
         private readonly IMapper _mapper;
         private readonly IProductoRepositorio _productoRepositorio;
         public ProductoController(IProductoRepositorio productoRepositorio, IMapper mapper)
@@ -26,30 +26,45 @@ namespace SistemaVentaBlazor.Server.Controllers
         [Route("Lista")]
         public async Task<IActionResult> Lista()
         {
-            ResponseDTO<List<ProductoDTO>> _ResponseDTO = new ResponseDTO<List<ProductoDTO>>();
-
             try
             {
-                List<ProductoDTO> ListaProductos = new List<ProductoDTO>();
-                IQueryable<Producto> query = await _productoRepositorio.Consultar();
+                Console.WriteLine("Iniciando consulta de productos...");
+                var query = await _productoRepositorio.Consultar();
+                
+                Console.WriteLine("Incluyendo navegación de categorías...");
                 query = query.Include(r => r.IdCategoriaNavigation);
+                
+                Console.WriteLine("Ejecutando consulta...");
+                var productos = await query.ToListAsync();
+                
+                Console.WriteLine($"Productos encontrados: {productos.Count}");
+                var listaProductos = _mapper.Map<List<ProductoDTO>>(productos);
+                Console.WriteLine($"Productos mapeados: {listaProductos.Count}");
 
-                ListaProductos = _mapper.Map<List<ProductoDTO>>(query.ToList());
+                var response = new ResponseDTO<List<ProductoDTO>>
+                {
+                    status = listaProductos.Any(),
+                    msg = listaProductos.Any() ? "ok" : "No se encontraron productos",
+                    value = listaProductos
+                };
 
-                if (ListaProductos.Count > 0)
-                    _ResponseDTO = new ResponseDTO<List<ProductoDTO>>() { status = true, msg = "ok", value = ListaProductos };
-                else
-                    _ResponseDTO = new ResponseDTO<List<ProductoDTO>>() { status = false, msg = "", value = null };
-
-                return StatusCode(StatusCodes.Status200OK, _ResponseDTO);
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                _ResponseDTO = new ResponseDTO<List<ProductoDTO>>() { status = false, msg = ex.Message, value = null };
-                return StatusCode(StatusCodes.Status500InternalServerError, _ResponseDTO);
+                Console.WriteLine($"Error en Lista: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                
+                var response = new ResponseDTO<List<ProductoDTO>>
+                {
+                    status = false,
+                    msg = $"Error al obtener productos: {ex.Message}",
+                    value = null
+                };
+                return StatusCode(500, response);
             }
         }
-
 
         [HttpPost]
         [Route("Guardar")]
@@ -59,6 +74,8 @@ namespace SistemaVentaBlazor.Server.Controllers
             try
             {
                 Producto _producto = _mapper.Map<Producto>(request);
+                _producto.FechaRegistro = DateTime.Now;
+                _producto.EsActivo = true;
 
                 Producto _productoCreado = await _productoRepositorio.Crear(_producto);
 
@@ -67,12 +84,12 @@ namespace SistemaVentaBlazor.Server.Controllers
                 else
                     _ResponseDTO = new ResponseDTO<ProductoDTO>() { status = false, msg = "No se pudo crear el producto" };
 
-                return StatusCode(StatusCodes.Status200OK, _ResponseDTO);
+                return Ok(_ResponseDTO);
             }
             catch (Exception ex)
             {
                 _ResponseDTO = new ResponseDTO<ProductoDTO>() { status = false, msg = ex.Message };
-                return StatusCode(StatusCodes.Status500InternalServerError, _ResponseDTO);
+                return StatusCode(500, _ResponseDTO);
             }
         }
 
@@ -88,11 +105,11 @@ namespace SistemaVentaBlazor.Server.Controllers
 
                 if (_productoParaEditar != null)
                 {
-
                     _productoParaEditar.Nombre = _producto.Nombre;
                     _productoParaEditar.IdCategoria = _producto.IdCategoria;
                     _productoParaEditar.Stock = _producto.Stock;
                     _productoParaEditar.Precio = _producto.Precio;
+                    _productoParaEditar.CodigoBarras = _producto.CodigoBarras;
 
                     bool respuesta = await _productoRepositorio.Editar(_productoParaEditar);
 
@@ -106,16 +123,14 @@ namespace SistemaVentaBlazor.Server.Controllers
                     _ResponseDTO = new ResponseDTO<bool>() { status = false, msg = "No se encontró el producto" };
                 }
 
-                return StatusCode(StatusCodes.Status200OK, _ResponseDTO);
+                return Ok(_ResponseDTO);
             }
             catch (Exception ex)
             {
                 _ResponseDTO = new ResponseDTO<bool>() { status = false, msg = ex.Message };
-                return StatusCode(StatusCodes.Status500InternalServerError, _ResponseDTO);
+                return StatusCode(500, _ResponseDTO);
             }
         }
-
-
 
         [HttpDelete]
         [Route("Eliminar/{id:int}")]
@@ -128,7 +143,6 @@ namespace SistemaVentaBlazor.Server.Controllers
 
                 if (_productoEliminar != null)
                 {
-
                     bool respuesta = await _productoRepositorio.Eliminar(_productoEliminar);
 
                     if (respuesta)
@@ -137,12 +151,12 @@ namespace SistemaVentaBlazor.Server.Controllers
                         _ResponseDTO = new ResponseDTO<string>() { status = false, msg = "No se pudo eliminar el producto", value = "" };
                 }
 
-                return StatusCode(StatusCodes.Status200OK, _ResponseDTO);
+                return Ok(_ResponseDTO);
             }
             catch (Exception ex)
             {
                 _ResponseDTO = new ResponseDTO<string>() { status = false, msg = ex.Message };
-                return StatusCode(StatusCodes.Status500InternalServerError, _ResponseDTO);
+                return StatusCode(500, _ResponseDTO);
             }
         }
     }

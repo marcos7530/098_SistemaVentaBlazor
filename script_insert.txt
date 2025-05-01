@@ -1,47 +1,65 @@
+-- INSERTAR ROLES
+INSERT INTO Rol(descripcion, esActivo) VALUES
+('Administrador', true),
+('Empleado', true);
 
---INSERTAR ROLES
-insert into rol(descripcion,esActivo) values
-('Administrador',1),
-('Empleado',1)
+-- INSERTAR USUARIOS
+INSERT INTO Usuario(nombreApellidos, correo, idRol, Clave, esActivo) VALUES
+('jose smith', 'admin@example.com', 1, '12345', true),
+('luis smith', 'employe@example.com', 2, '12345', true);
 
-go
+-- INSERTAR CATEGORIAS
+INSERT INTO Categoria(descripcion, esActivo) VALUES 
+('Bebidas', true),
+('Snacks', true),
+('Golosinas', true),
+('Galletas', true),
+('Cigarrillos', true),
+('Artículos de Limpieza', true);
 
---INSERTAR USUARIOS
-insert into usuario(nombreApellidos,correo,idRol,Clave,esActivo) values
-('jose smith','admin@example.com',1,'12345',1),
-('luis smith','employe@example.com',2,'12345',1)
+-- INSERTAR PRODUCTOS
+INSERT INTO Producto(nombre, idCategoria, stock, precio, esActivo) VALUES
+-- Bebidas
+('Coca Cola 500ml', 1, 50, 2.50, true),
+('Pepsi 500ml', 1, 40, 2.30, true),
+('Agua Mineral 600ml', 1, 60, 1.50, true),
+('Gatorade Tropical 500ml', 1, 30, 3.00, true),
+('Red Bull 250ml', 1, 24, 4.50, true),
 
-go
---INSERTAR CATEGORIAS
-insert into Categoria(descripcion,esActivo) values ('Laptops',1)
-insert into Categoria(descripcion,esActivo) values ('Monitores',1)
-insert into Categoria(descripcion,esActivo) values ('Teclados',1)
-insert into Categoria(descripcion,esActivo) values ('Auriculares',1)
-insert into Categoria(descripcion,esActivo) values ('Memorias',1)
-insert into Categoria(descripcion,esActivo) values ('Accesorios',1)
+-- Snacks
+('Doritos Nacho 45g', 2, 40, 1.80, true),
+('Lay's Clásicas 45g', 2, 35, 1.80, true),
+('Cheetos 45g', 2, 30, 1.50, true),
+('Piqueo Snax 45g', 2, 25, 1.50, true),
+('Maní Salado 100g', 2, 20, 2.00, true),
 
-go
+-- Golosinas
+('Chocolate Sublime', 3, 48, 1.20, true),
+('Chocolate Princesa', 3, 48, 1.00, true),
+('Caramelos Halls', 3, 60, 0.80, true),
+('Chicles Trident', 3, 72, 1.00, true),
+('M&Ms 45g', 3, 36, 2.50, true),
 
---INSERTAR PRODUCTOS
+-- Galletas
+('Oreo Regular', 4, 40, 1.00, true),
+('Ritz Original', 4, 35, 0.90, true),
+('Soda Field', 4, 50, 0.50, true),
+('Vainilla Field', 4, 45, 0.50, true),
+('Chokis', 4, 30, 1.20, true),
 
-insert into Producto(nombre,idCategoria,stock,precio,esActivo) values
-('laptop samsung book pro',1,20,2500,1),
-('laptop lenovo idea pad',1,30,2200,1),
-('laptop asus zenbook duo',1,30,2100,1),
-('monitor teros gaming te-2',2,25,1050,1),
-('monitor samsung curvo',2,15,1400,1),
-('monitor huawei gamer',2,10,1350,1),
-('teclado seisen gamer',3,10,800,1),
-('teclado antryx gamer',3,10,1000,1),
-('teclado logitech',3,10,1000,1),
-('auricular logitech gamer',4,15,800,1),
-('auricular hyperx gamer',4,20,680,1),
-('auricular redragon rgb',4,25,950,1),
-('memoria kingston rgb',5,10,200,1),
-('ventilador cooler master',6,20,200,1),
-('mini ventilador lenono',6,15,200,1)
+-- Cigarrillos
+('Lucky Strike Regular 20', 5, 30, 8.50, true),
+('Marlboro Rojo 20', 5, 30, 8.50, true),
+('Hamilton Blue 20', 5, 25, 7.00, true),
+('L&M Blue 20', 5, 25, 7.00, true),
+('Pall Mall 20', 5, 20, 6.50, true),
 
-go
+-- Artículos de Limpieza
+('Papel Higiénico x1', 6, 48, 1.20, true),
+('Jabón de Baño', 6, 36, 1.50, true),
+('Pasta Dental 75ml', 6, 24, 2.50, true),
+('Cepillo Dental', 6, 24, 2.00, true),
+('Toallas Húmedas x10', 6, 30, 1.80, true);
 
---INSERTAR NUMERO VENTA INICIAL
-insert into NumeroDocumento(ultimo_Numero) values(0)
+-- INSERTAR NUMERO VENTA INICIAL
+INSERT INTO NumeroDocumento(ultimo_Numero) VALUES(0);

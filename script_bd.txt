@@ -1,75 +1,70 @@
+CREATE DATABASE IF NOT EXISTS u139333448_PruebasMarcelo;
 
+USE u139333448_PruebasMarcelo;
 
-create database DBVentaBlazor
+CREATE TABLE IF NOT EXISTS Rol(
+    idRol INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(50),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-go
+CREATE TABLE IF NOT EXISTS Usuario(
+    idUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombreApellidos VARCHAR(100),
+    correo VARCHAR(40),
+    idRol INT,
+    clave VARCHAR(40),
+    esActivo BOOLEAN,
+    FOREIGN KEY (idRol) REFERENCES Rol(idRol)
+);
 
-use DBVentaBlazor
+CREATE TABLE IF NOT EXISTS Categoria(
+    idCategoria INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(50),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-go
+CREATE TABLE IF NOT EXISTS Producto (
+    idProducto INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    idCategoria INT,
+    stock INT,
+    precio DECIMAL(10,2),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria)
+);
 
-create table Rol(
-idRol int primary key identity(1,1),
-descripcion varchar(50),
-esActivo bit,
-fechaRegistro datetime default getdate()
-)
+CREATE TABLE IF NOT EXISTS NumeroDocumento(
+    idNumeroDocumento INT PRIMARY KEY AUTO_INCREMENT,
+    ultimo_Numero INT NOT NULL,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-go
+CREATE TABLE IF NOT EXISTS Venta(
+    idVenta INT PRIMARY KEY AUTO_INCREMENT,
+    numeroDocumento VARCHAR(40),
+    tipoPago VARCHAR(50),
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total DECIMAL(10,2)
+);
 
-create table Usuario(
-idUsuario int primary key identity(1,1),
-nombreApellidos varchar(100),
-correo varchar(40),
-idRol int references Rol(idRol),
-clave varchar(40),
-esActivo bit
-)
+CREATE TABLE IF NOT EXISTS DetalleVenta(
+    idDetalleVenta INT PRIMARY KEY AUTO_INCREMENT,
+    idVenta INT,
+    idProducto INT,
+    cantidad INT,
+    precio DECIMAL(10,2),
+    total DECIMAL(10,2),
+    FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
+    FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
+);
 
-go
-
-create table Categoria(
-idCategoria int primary key identity(1,1),
-descripcion varchar(50),
-esActivo bit,
-fechaRegistro datetime default getdate()
-)
-
-
-go 
-create table Producto (
-idProducto int primary key identity(1,1),
-nombre varchar(100),
-idCategoria int references Categoria(idCategoria),
-stock int,
-precio decimal(10,2),
-esActivo bit,
-fechaRegistro datetime default getdate()
-)
-
-go
-
-create table NumeroDocumento(
-idNumeroDocumento int primary key identity(1,1),
-ultimo_Numero int not null,
-fechaRegistro datetime default getdate()
-)
-go
-
-create table Venta(
-idVenta int primary key identity(1,1),
-numeroDocumento varchar(40),
-tipoPago varchar(50),
-fechaRegistro datetime default getdate(),
-total decimal(10,2)
-)
-go
-
-create table DetalleVenta(
-idDetalleVenta int primary key identity(1,1),
-idVenta int references Venta(idVenta),
-idProducto int references Producto(idProducto),
-cantidad int,
-precio decimal(10,2),
-total decimal(10,2)
-)
+-- Crear tabla de migraciones si no existe
+CREATE TABLE IF NOT EXISTS __EFMigrationsHistory (
+    MigrationId VARCHAR(150) NOT NULL,
+    ProductVersion VARCHAR(32) NOT NULL,
+    PRIMARY KEY (MigrationId)
+);
