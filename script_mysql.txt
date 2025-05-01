@@ -1,0 +1,63 @@
+CREATE DATABASE DBVentaBlazor;
+
+USE DBVentaBlazor;
+
+CREATE TABLE Rol(
+    idRol INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(50),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Usuario(
+    idUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombreApellidos VARCHAR(100),
+    correo VARCHAR(40),
+    idRol INT,
+    clave VARCHAR(40),
+    esActivo BOOLEAN,
+    FOREIGN KEY (idRol) REFERENCES Rol(idRol)
+);
+
+CREATE TABLE Categoria(
+    idCategoria INT PRIMARY KEY AUTO_INCREMENT,
+    descripcion VARCHAR(50),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Producto (
+    idProducto INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    idCategoria INT,
+    stock INT,
+    precio DECIMAL(10,2),
+    esActivo BOOLEAN,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria)
+);
+
+CREATE TABLE NumeroDocumento(
+    idNumeroDocumento INT PRIMARY KEY AUTO_INCREMENT,
+    ultimo_Numero INT NOT NULL,
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Venta(
+    idVenta INT PRIMARY KEY AUTO_INCREMENT,
+    numeroDocumento VARCHAR(40),
+    tipoPago VARCHAR(50),
+    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total DECIMAL(10,2)
+);
+
+CREATE TABLE DetalleVenta(
+    idDetalleVenta INT PRIMARY KEY AUTO_INCREMENT,
+    idVenta INT,
+    idProducto INT,
+    cantidad INT,
+    precio DECIMAL(10,2),
+    total DECIMAL(10,2),
+    FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
+    FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
+);

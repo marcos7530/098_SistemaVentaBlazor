@@ -4,6 +4,7 @@ using SistemaVentaBlazor.Server.Models;
 using SistemaVentaBlazor.Server.Repositorio.Contrato;
 using SistemaVentaBlazor.Server.Repositorio.Implementacion;
 using SistemaVentaBlazor.Server.Utilidades;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,11 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<DbventaBlazorContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CadenaSQL"));
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("CadenaSQL"),
+        new MySqlServerVersion(new Version(8, 0, 0)),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
+    );
 });
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
